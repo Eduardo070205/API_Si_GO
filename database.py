@@ -4,6 +4,7 @@ from sqlalchemy import create_engine, Column, Integer, Float, String, Date, Time
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.orm import sessionmaker
 from datetime import datetime
+import os
 
 # ── Configuración de conexión ─────────────────────────────────────────────────
 MYSQL_USER     = "eduardo"
@@ -12,7 +13,10 @@ MYSQL_HOST     = "localhost"
 MYSQL_PORT     = "3306"
 MYSQL_DB       = "riego_db"
 
-DATABASE_URL = f"mysql+pymysql://{MYSQL_USER}:{MYSQL_PASSWORD}@{MYSQL_HOST}:{MYSQL_PORT}/{MYSQL_DB}"
+DATABASE_URL = os.getenv(
+    "DATABASE_URL", 
+    "mysql+pymysql://eduardo:Eduardo10@localhost:3306/riego_db"
+)
 
 engine = create_engine(DATABASE_URL, pool_pre_ping=True)
 
