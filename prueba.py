@@ -8,12 +8,15 @@ import json
 from groq import Groq
 from database import Base, engine, get_db, PlantaDB, HistorialRiegoDB
 import os
-
+from zoneinfo import ZoneInfo
 
 # Crea las tablas si no existen
 Base.metadata.create_all(bind=engine)
 
 app = FastAPI()
+
+
+TZ_MX = ZoneInfo("America/Mexico_City")
 
 # ── API Keys ──────────────────────────────────────────────────────────────────
 API_KEY = os.getenv("OPENWEATHER_API_KEY")
@@ -116,7 +119,7 @@ def obtener_pronostico(ciudad):
 
         proximas_horas = []
         for item in datos["list"][:5]:
-            fecha = datetime.fromtimestamp(item["dt"])
+            fecha = datetime.fromtimestamp(item["dt"], TZ_MX)
             proximas_horas.append({
                 "fecha":       fecha.strftime("%H:%M"),
                 "temperatura": item["main"]["temp"],
@@ -125,7 +128,7 @@ def obtener_pronostico(ciudad):
 
         proximos_dias = {}
         for item in datos["list"]:
-            fecha       = datetime.fromtimestamp(item["dt"])
+            fecha       = datetime.fromtimestamp(item["dt"], TZ_MX)
             dia         = fecha.strftime("%Y-%m-%d")
             temp_min    = item["main"]["temp_min"]
             temp_max    = item["main"]["temp_max"]
@@ -268,7 +271,7 @@ async def recibir_sensores(datos: DatosESP32, db: Session = Depends(get_db)):
 
     # Guardar en historial si se activó el riego
     if activar_riego:
-        now      = datetime.now()
+        now = datetime.now(TZ_MX)
         registro = HistorialRiegoDB(
             fecha       = now.date(),
             hora        = now.time(),
