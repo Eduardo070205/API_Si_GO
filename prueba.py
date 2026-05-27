@@ -55,6 +55,7 @@ class DatosESP32(BaseModel):
     lluvia:        int
     temp_aire:     float
     hum_aire:      float
+    litros:        float
 
 class PlantaSchema(BaseModel):
     nombre:               str
@@ -276,7 +277,7 @@ async def recibir_sensores(datos: DatosESP32, db: Session = Depends(get_db)):
             fecha       = now.date(),
             hora        = now.time(),
             planta      = db_sistema["configuracion"]["planta"],
-            litros      = 2.5,
+            litros = datos.litros,
             temperatura = datos.temp_aire
         )
         db.add(registro)
